@@ -20,7 +20,7 @@ Don't spend more than 3 hours working on this. Don't worry if you don't get the 
 
 #### 2 Adding new user
 - After + button is clicked pop up dialog is displayed with name and email entries
-- After confirmation and successful user creation item is added to the list
+- After confirmation and successful user creation (201 response code) item is added to the list
 
 #### 3 Removing existing user
 - After item long press pop up dialog is displayed with question “Are you sure you want to remove this user?“
