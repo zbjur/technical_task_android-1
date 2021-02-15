@@ -11,7 +11,7 @@ For implementation we use https://gorest.co.in/ public API
 ### Functional requirement
 Feel free to use whatever flare you can to show off your skills.
 
-Don't spend more than 3 hours working on this. Don't worry if you don't get the task finished as we'd like to hear how you prioritised your time.
+You shouldn't spend more than 4h on implementation, but if you need more time to show the best quality, feel free to use it. We prefer finished, clean, production ready implementation with unit tests, rather than half done solution.
 
 #### 1 Displaying list of users
 - After app is open list of users is displayed (only users from last page of the endpoint)
