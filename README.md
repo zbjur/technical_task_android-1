@@ -33,6 +33,7 @@ You shouldn't spend more than 1 day on implementation, but if you need more time
 - Design should follow Material design guidelines
 - RxJava or Coroutines
 - Architecture one of MVP/MVVM/MVI
+- Dependency injection with Dagger 2 or Hilt
 - Unit tests
 
 ### Evaluation Criteria
