@@ -29,10 +29,11 @@ You shouldn't spend more than 1 day on implementation, but if you need more time
 ### Technical requirements
 - Application must be developed in Kotlin with minimum Android SDK version of 21
 - You are free to use whatever frameworks or tools you see fit
+- UI preferable in Jetpack Compose
 - Application needs to support device rotation
 - Design should follow Material design guidelines
-- RxJava or Coroutines
-- Architecture one of MVP/MVVM/MVI
+- Coroutines
+- Architecture MVVM or MVI
 - Dependency injection with Dagger 2 or Hilt
 - Unit tests
 
