@@ -29,7 +29,6 @@ class UserRepositoryImpl @Inject constructor(
     override fun removeUser(userId: Int): Flow<Any> = flow {
         userService.removeUser(userId)
             .let {
-                it.isSuccessful.let {  }
                 if (it.isSuccessful) {
                     emit(Unit)
                 } else {
