@@ -4,6 +4,7 @@ import com.example.sliideapp.data.model.User
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
@@ -15,7 +16,8 @@ class RetrofitNetworkService @Inject constructor() : NetworkService {
 
     companion object {
         private const val tokenType = "Bearer"
-        private const val accessToken = "b6bb09dd5e29c66cda4f340879275a4cc610f53f15330cc6aa8eb0605a3bbe2f"
+        private const val accessToken =
+            "b6bb09dd5e29c66cda4f340879275a4cc610f53f15330cc6aa8eb0605a3bbe2f"
         private const val urlAddress = "https://gorest.co.in/public/v2/"
     }
 
@@ -58,8 +60,8 @@ class RetrofitNetworkService @Inject constructor() : NetworkService {
         return userService.addNewUser(user)
     }
 
-    override suspend fun removeUser(userId: Int) {
-        userService.removeUser(userId)
+    override suspend fun removeUser(userId: Int): Response<Unit>{
+        return userService.removeUser(userId)
     }
 }
 
@@ -71,5 +73,5 @@ interface UserService {
     suspend fun addNewUser(@Body user: User): User
 
     @DELETE("users/{userId}")
-    suspend fun removeUser(@Path("userId") userId: Int)
+    suspend fun removeUser(@Path("userId") userId: Int): Response<Unit>
 }

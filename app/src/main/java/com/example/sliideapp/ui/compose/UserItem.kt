@@ -1,6 +1,8 @@
 package com.example.sliideapp.ui.compose
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -10,13 +12,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun UserItem(
     name: String,
     email: String,
     gender: String,
     status: String,
+    id: Int,
     onClick: () -> Unit,
+    onLongClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     itemSeparation: Dp = 16.dp
 ) {
@@ -30,6 +35,7 @@ fun UserItem(
                 .weight(1f)
                 .clickable { onClick() }
                 .padding(vertical = itemSeparation)
+                .combinedClickable(onClick = {}, onLongClick = { onLongClick.invoke(id) })
         ) {
 
             Spacer(modifier = Modifier.width(16.dp))

@@ -1,17 +1,16 @@
 package com.example.sliideapp.ui
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sliideapp.data.UserRepository
 import com.example.sliideapp.data.model.User
+import com.example.sliideapp.data.model.User.Companion.mapToUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.random.Random
 
 @HiltViewModel
 class UserListViewModel @Inject constructor(
@@ -23,39 +22,37 @@ class UserListViewModel @Inject constructor(
     val uiState: StateFlow<UserUiState> = _uiState
 
     init {
-        viewModelScope.launch {
-            userRepository.getAllUsers()
-                .catch { exception -> _uiState.value = UserUiState.Error(exception) }
-                .collect {
-                    _uiState.value = UserUiState.Success(it)
-                }
-        }
+        loadUserList()
     }
 
-    fun removeUser(userId: Int) {
-        viewModelScope.launch {
-            try {
-                userRepository.removeUser(userId)
-            } catch (ex: Throwable) {
-                _uiState.value = UserUiState.Error(ex)
-            }
-        }
+    private fun loadUserList() {
+        userRepository.getAllUsers()
+            .map { UserUiState.Success(users = it) as UserUiState }
+            .onStart { emit(UserUiState.Loading) }
+            .onEach { _uiState.value = it }
+            .catch { cause -> showErrorScreen(cause) }
+            .launchIn(viewModelScope)
     }
 
     fun addUser(name: String, email: String, gender: String) {
-        onDismissDialog()
-        viewModelScope.launch {
-            userRepository.addUser(
-                User(
-                    name = name,
-                    email = email,
-                    status = "active",
-                    gender = gender,
-                    id = Random.nextInt()
-                )
-            ).catch { exception -> _uiState.value = UserUiState.Error(exception) }
-                .collect()
-        }
+        userRepository.addUser(mapToUser(name, email, gender))
+            .onStart { onDismissDialog() }
+            .onEach { _uiState.value = UserUiState.Success(user = it) }
+            .catch { exception -> showErrorScreen(exception) }
+            .onCompletion { loadUserList() }
+            .launchIn(viewModelScope)
+    }
+
+    fun removeUser(userId: Int) {
+        userRepository.removeUser(userId)
+            .onStart { }
+            .onEach { loadUserList() }
+            .catch { exception -> showErrorScreen(exception) }
+            .launchIn(viewModelScope)
+    }
+
+    private fun showErrorScreen(exception: Throwable) {
+        _uiState.value = UserUiState.Error(exception)
     }
 
     var isDialogShown by mutableStateOf(false)
@@ -71,7 +68,7 @@ class UserListViewModel @Inject constructor(
 
     sealed interface UserUiState {
         object Loading : UserUiState
-        data class Success(val users: List<User>) : UserUiState
+        data class Success(val users: List<User>? = null, val user: User? = null) : UserUiState
         data class Error(val exception: Throwable? = null) : UserUiState
     }
 }

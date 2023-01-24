@@ -45,22 +45,23 @@ internal fun MainUserScreen(
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
         when (uiState) {
             is UserUiState.Success -> {
-                UserListScreen(
-                    (uiState as UserUiState.Success).users,
-                    modifier = modifier
-                )
+                initMainScreen(uiState, modifier, onLongClick = {
+                    viewModel.removeUser(it)
+                })
             }
             is UserUiState.Error -> {
                 Text(
                     text = (uiState as UserUiState.Error).exception.toString(),
                     style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(vertical = 0.dp))
+                    modifier = Modifier.padding(vertical = 0.dp)
+                )
             }
             UserUiState.Loading -> {
                 Text(
                     text = "Here suppose to be a loading screen",
                     style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(vertical = 0.dp))
+                    modifier = Modifier.padding(vertical = 0.dp)
+                )
             }
         }
         if (viewModel.isDialogShown) {
@@ -76,9 +77,51 @@ internal fun MainUserScreen(
 }
 
 @Composable
+private fun initMainScreen(
+    uiState: UserUiState,
+    modifier: Modifier,
+    onLongClick: (Int) -> Unit
+) {
+    (uiState as UserUiState.Success).users?.let {
+        UserListScreen(
+            it,
+            modifier = modifier,
+            onLongClick = onLongClick
+        )
+    }
+    uiState.user?.let {
+        Column(
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = it.name,
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(vertical = 0.dp)
+            )
+            Text(
+                text = it.email,
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(vertical = 0.dp)
+            )
+            Text(
+                text = it.gender,
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(vertical = 0.dp)
+            )
+            Text(
+                text = it.status,
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(vertical = 0.dp)
+            )
+        }
+    }
+}
+
+@Composable
 internal fun UserListScreen(
     users: List<User>,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier, onLongClick: (Int) -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -86,26 +129,28 @@ internal fun UserListScreen(
     ) {
         UserList(
             users,
-            modifier = modifier
+            modifier = modifier, onLongClick = onLongClick
         )
     }
 }
 
 @Composable
 fun UserList(
-    users: List<User>, modifier: Modifier = Modifier
+    users: List<User>, modifier: Modifier = Modifier, onLongClick: (Int) -> Unit
 ) {
     LazyColumn(
         modifier = modifier.padding(horizontal = 16.dp), contentPadding = PaddingValues(top = 8.dp)
     ) {
         users.forEach { user ->
-            item() {
+            item {
                 UserItem(
                     name = user.name,
                     email = user.email,
                     gender = user.gender,
                     status = user.status,
+                    id = user.id,
                     onClick = { },
+                    onLongClick = onLongClick,
                     modifier = modifier
                 )
             }

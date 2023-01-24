@@ -1,10 +1,8 @@
 package com.example.sliideapp.ui
 
-import com.example.sliideapp.data.UserRepository
+import com.example.sliideapp.TestUserRepository
 import com.example.sliideapp.data.model.User
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestDispatcher
@@ -19,23 +17,7 @@ class UserListViewModelTest {
 
     private val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
 
-    class FakeDataSource : UserRepository {
-        private val flow = MutableSharedFlow<List<User>>()
-        suspend fun emit(value: List<User>) = flow.emit(value)
-
-        override fun getAllUsers(): Flow<List<User>> {
-            return flow
-        }
-
-        override suspend fun removeUser(userId: Int) {
-        }
-
-        override fun addUser(user: User): Flow<User> {
-
-        }
-    }
-
-    val dataSource = FakeDataSource()
+    private val dataSource = TestUserRepository()
 
     private lateinit var viewModel: UserListViewModel
 
@@ -53,30 +35,39 @@ class UserListViewModelTest {
 
     @Test
     fun uiState_whenLoaded_thenShowListOfUsers() = runTest {
+        dataSource.emitFakeUserList(testOutputUsers)
+
         val job = launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
-        dataSource.emit(listOf())
+
         assertEquals(
-            UserListViewModel.UserUiState.Success(emptyList<User>()),
-            viewModel.uiState.value
+            UserListViewModel.UserUiState.Success(testOutputUsers),
+            (viewModel.uiState.value as UserListViewModel.UserUiState.Success)
         )
         job.cancel()
     }
 
     @Test
     fun uiState_whenErrorThrown_thenShowErrorInformation() = runTest {
+        dataSource.emitFakeUserList(testOutputUsers)
         val job = launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
-        dataSource.emit(listOf())
         assertEquals(
-            UserListViewModel.UserUiState.Success(emptyList<User>()),
-            viewModel.uiState.value
+            UserListViewModel.UserUiState.Success(testOutputUsers), viewModel.uiState.value
         )
         job.cancel()
     }
 
     @Test
     fun uiState_whenNewUserAdded_thenShowConfirmation() = runTest {
+        dataSource.addUser(testOutputUser)
         val job = launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
-        dataSource.emit(listOf())
+        assertEquals(testOutputUser, viewModel.uiState.value)
+        job.cancel()
+    }
+
+    @Test
+    fun uiState_whenUserRemoved_thenShowConfirmation() = runTest {
+        val job = launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
+        dataSource.emitFakeUserList(listOf())
         assertEquals(
             UserListViewModel.UserUiState.Success(emptyList<User>()),
             viewModel.uiState.value
@@ -84,15 +75,43 @@ class UserListViewModelTest {
         job.cancel()
     }
 
-    @Test
-    fun uiState_whenUserRemoved_thenShowConfirmation() = runTest {
-        val job = launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
-        dataSource.emit(listOf())
-        assertEquals(
-            UserListViewModel.UserUiState.Success(emptyList<User>()),
-            viewModel.uiState.value
+    private val testOutputUser = User(
+        id = 1,
+        name = "Frank",
+        email = "frank@dot.com",
+        gender = "male",
+        status = "active"
+    )
+
+    private val testOutputUsers = listOf(
+        User(
+            id = 1,
+            name = "Frank",
+            email = "frank@dot.com",
+            gender = "male",
+            status = "active"
+        ), User(
+            id = 2,
+            name = "Joseph",
+            email = "joseph@dot.com",
+            gender = "male",
+            status = "active"
+        ),
+        User(
+            id = 3,
+            name = "Bo",
+            email = "bo@dot.com",
+            gender = "male",
+            status = "active"
+        ),
+
+        User(
+            id = 4,
+            name = "Willy",
+            email = "willy@dot.com",
+            gender = "male",
+            status = "active"
         )
-        job.cancel()
-    }
+    )
 
 }
