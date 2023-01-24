@@ -30,14 +30,15 @@ class UserListViewModel @Inject constructor(
             .map { UserUiState.Success(users = it) as UserUiState }
             .onStart { emit(UserUiState.Loading) }
             .onEach { _uiState.value = it }
-            .catch { cause -> showErrorScreen(cause) }
+            .catch { exception -> showErrorScreen(exception) }
             .launchIn(viewModelScope)
     }
 
     fun addUser(name: String, email: String, gender: String) {
         userRepository.addUser(mapToUser(name, email, gender))
+            .map {UserUiState.Success(user = it) as UserUiState  }
             .onStart { onDismissDialog() }
-            .onEach { _uiState.value = UserUiState.Success(user = it) }
+            .onEach { _uiState.value = it }
             .catch { exception -> showErrorScreen(exception) }
             .onCompletion { loadUserList() }
             .launchIn(viewModelScope)
@@ -45,9 +46,9 @@ class UserListViewModel @Inject constructor(
 
     fun removeUser(userId: Int) {
         userRepository.removeUser(userId)
-            .onStart { }
-            .onEach { loadUserList() }
+            .onStart { /*show spinner*/}
             .catch { exception -> showErrorScreen(exception) }
+            .onCompletion { loadUserList() }
             .launchIn(viewModelScope)
     }
 

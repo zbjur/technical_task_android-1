@@ -16,8 +16,7 @@ class RetrofitNetworkService @Inject constructor() : NetworkService {
 
     companion object {
         private const val tokenType = "Bearer"
-        private const val accessToken =
-            "b6bb09dd5e29c66cda4f340879275a4cc610f53f15330cc6aa8eb0605a3bbe2f"
+        private const val accessToken = "b6bb09dd5e29c66cda4f340879275a4cc610f53f15330cc6aa8eb0605a3bbe2f"
         private const val urlAddress = "https://gorest.co.in/public/v2/"
     }
 
