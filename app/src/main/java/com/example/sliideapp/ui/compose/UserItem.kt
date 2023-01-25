@@ -35,7 +35,9 @@ fun UserItem(
                 .weight(1f)
                 .clickable { onClick() }
                 .padding(vertical = itemSeparation)
-                .combinedClickable(onClick = {}, onLongClick = { onLongClick.invoke(id) })
+                .combinedClickable(onClick = {}, onLongClick = {
+                    onLongClick.invoke(id)
+                })
         ) {
 
             Spacer(modifier = Modifier.width(16.dp))

@@ -1,8 +1,5 @@
 package com.example.sliideapp.ui
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sliideapp.data.UserRepository
@@ -21,6 +18,10 @@ class UserListViewModel @Inject constructor(
 
     val uiState: StateFlow<UserUiState> = _uiState
 
+    private val _uiDialogState = MutableStateFlow<DialogState>(DialogState.DismissDialog)
+
+    val uiDialogState: StateFlow<DialogState> = _uiDialogState
+
     init {
         loadUserList()
     }
@@ -36,7 +37,7 @@ class UserListViewModel @Inject constructor(
 
     fun addUser(name: String, email: String, gender: String) {
         userRepository.addUser(mapToUser(name, email, gender))
-            .map {UserUiState.Success(user = it) as UserUiState  }
+            .map { UserUiState.Success(user = it) as UserUiState }
             .onStart { onDismissDialog() }
             .onEach { _uiState.value = it }
             .catch { exception -> showErrorScreen(exception) }
@@ -46,7 +47,7 @@ class UserListViewModel @Inject constructor(
 
     fun removeUser(userId: Int) {
         userRepository.removeUser(userId)
-            .onStart { /*show spinner*/}
+            .onStart { onDismissDialog() }
             .catch { exception -> showErrorScreen(exception) }
             .onCompletion { loadUserList() }
             .launchIn(viewModelScope)
@@ -56,15 +57,22 @@ class UserListViewModel @Inject constructor(
         _uiState.value = UserUiState.Error(exception)
     }
 
-    var isDialogShown by mutableStateOf(false)
-        private set
-
     fun onDismissDialog() {
-        isDialogShown = false
+        _uiDialogState.value = DialogState.DismissDialog
     }
 
-    fun onAddUserClick() {
-        isDialogShown = true
+    fun onShowAddUserDialogClick() {
+        _uiDialogState.value = DialogState.AddNewUserDialog
+    }
+
+    fun onShowDeleteUserDialogClick(userId: Int) {
+        _uiDialogState.value = DialogState.DeleteUserDialog(userId)
+    }
+
+    sealed interface DialogState {
+        object DismissDialog : DialogState
+        object AddNewUserDialog : DialogState
+        data class DeleteUserDialog(val userId: Int) : DialogState
     }
 
     sealed interface UserUiState {

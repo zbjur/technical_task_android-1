@@ -18,8 +18,7 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 
 @ExperimentalLifecycleComposeApi
 @Composable
-fun UserDialog(
-    onSave: (name: String, email: String, gender: String) -> Unit,
+fun UserDialog(onSave: (name: String, email: String, gender: String) -> Unit,
     onDismiss: () -> Unit
 ) {
     val nameState = rememberSaveable { mutableStateOf("") }
